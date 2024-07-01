@@ -5,7 +5,6 @@ import javax.swing.JOptionPane;
 import java.io.IOException;
 
 public class Proyecto {
-
     private static final String NOMBRE_ARCHIVO = "prod.txt";
     private static GestorTiquetes gestorTiquetes;
 
@@ -15,28 +14,30 @@ public class Proyecto {
 
         while (!salir) {
             try {
-                // Menú de opciones
-                String opcionStr = JOptionPane.showInputDialog(
-                        "Selecciona una opción:\n" +
-                        "1. Configuración inicial\n" +
-                        "2. Crear tiquete\n" +
-                        "3. Mostrar estado de colas\n" +
-                        "4. Salir"
+                // Menú de opciones con botones
+                String[] opciones = {"Configuración inicial", "Crear tiquete", "Mostrar estado de colas", "Salir"};
+                int opcion = JOptionPane.showOptionDialog(
+                        null,
+                        "Selecciona una opción:",
+                        "Menú Principal",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        opciones,
+                        opciones[0]
                 );
 
-                int opcion = Integer.parseInt(opcionStr);
-
                 switch (opcion) {
-                    case 1:
+                    case 0:
                         configuracionInicial();
                         break;
-                    case 2:
+                    case 1:
                         crearTiquete();
                         break;
-                    case 3:
+                    case 2:
                         mostrarEstadoColas();
                         break;
-                    case 4:
+                    case 3:
                         salir = true;
                         break;
                     default:
