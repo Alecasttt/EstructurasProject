@@ -4,8 +4,12 @@
  */
 package proyecto;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalTime;
 import java.util.PriorityQueue;
+import javax.swing.JOptionPane;
 
 public class GestorTiquetes {
 
@@ -33,12 +37,61 @@ public class GestorTiquetes {
                 colaDosOMasTramites.offer(tiquete);
                 break;
             default:
-                System.out.println("Tipo de tiquete inválido: " + tipo);
+                JOptionPane.showMessageDialog(null,"Tipo de tiquete inválido: " + tipo);
                 break;
         }
 
-        System.out.println("Se ha creado el tiquete para " + nombre);
+        JOptionPane.showMessageDialog(null,"Se ha creado el tiquete para " + nombre);
         imprimirDetalleAtencion(tiquete);
+    }
+    
+    private void asignarTiqueteACaja(Tiquete tiquete, char tipo) {
+        tiquete.setHoraAtencion(LocalTime.now());
+        registrarEnReporte(tiquete);
+        JOptionPane.showMessageDialog(null,
+                "Tiquete atendido inmediatamente en la caja " + obtenerNumeroCaja(tipo),
+                "Atención de Tiquete",
+                JOptionPane.INFORMATION_MESSAGE);
+        imprimirDetalleAtencion(tiquete);
+    }
+    
+    public void atenderTiquete(char tipo) {
+        PriorityQueue<Tiquete> cola = obtenerColaSegunTipo(tipo);
+        if (cola != null) {
+            if (!cola.isEmpty()) {
+                Tiquete tiquete = cola.poll(); // Atender el primer tiquete en la cola
+                tiquete.setHoraAtencion(LocalTime.now());
+                registrarEnReporte(tiquete);
+                JOptionPane.showMessageDialog(null,
+                        "Tiquete atendido en la caja " + obtenerNumeroCaja(tipo),
+                        "Atención de Tiquete",
+                        JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        "No hay tiquetes para atender en la caja " + obtenerNumeroCaja(tipo),
+                        "Atención de Tiquete",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null,
+                    "Tipo de tiquete no válido: " + tipo,
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void registrarEnReporte(Tiquete tiquete) {
+        try (FileWriter fw = new FileWriter("reportes.txt", true); PrintWriter pw = new PrintWriter(fw)) {
+            pw.println("Tiquete Atendido:");
+            pw.println(tiquete.toString());
+            pw.println("Hora de atención: " + tiquete.getHoraAtencion());
+            pw.println("--------------------------");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null,
+                    "Error al guardar el reporte: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 ///////////////DA INFORMACION ///////////////////////
     public void imprimirDetalleAtencion(Tiquete tiquete) {
@@ -46,12 +99,12 @@ public class GestorTiquetes {
         int personasDelante = cola.size() - 1; 
 
         if (personasDelante > 0) {
-            System.out.println("Está en la cola de espera con " + personasDelante + " persona(s) delante.");
+            JOptionPane.showMessageDialog(null,"Está en la cola de espera con " + personasDelante + " persona(s) delante.");
         } else {
-            System.out.println("¡Es su turno de atención!");
+            JOptionPane.showMessageDialog(null,"¡Es su turno de atención!");
         }
 
-        System.out.println("Debe ser atendido en la caja " + obtenerNumeroCaja(tiquete.getTipo()));
+        JOptionPane.showMessageDialog(null,"Debe ser atendido en la caja " + obtenerNumeroCaja(tiquete.getTipo()));
     }
 
     private PriorityQueue<Tiquete> obtenerColaSegunTipo(char tipo) {
@@ -81,18 +134,18 @@ public class GestorTiquetes {
     }
 
     public void mostrarEstadoColas() {
-        System.out.println("Estado de las colas:");
-        System.out.println("Cola Preferencial:");
+        JOptionPane.showMessageDialog(null,"Estado de las colas:");
+       JOptionPane.showMessageDialog(null,"Cola Preferencial:");
         for (Tiquete t : colaPreferencial) {
-            System.out.println(t.toString());
+            JOptionPane.showMessageDialog(null,t.toString());
         }
-        System.out.println("Cola Un Trámite:");
+        JOptionPane.showMessageDialog(null,"Cola Un Trámite:");
         for (Tiquete t : colaUnTramite) {
-            System.out.println(t.toString());
+            JOptionPane.showMessageDialog(null,t.toString());
         }
-        System.out.println("Cola Dos o Más Trámites:");
+        JOptionPane.showMessageDialog(null,"Cola Dos o Más Trámites:");
         for (Tiquete t : colaDosOMasTramites) {
-            System.out.println(t.toString());
+            JOptionPane.showMessageDialog(null,t.toString());
         }
     }
 }
