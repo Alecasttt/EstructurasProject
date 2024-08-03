@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package proyecto;
 
 import java.io.FileWriter;
@@ -18,9 +14,9 @@ public class GestorTiquetes {
     private PriorityQueue<Tiquete> colaDosOMasTramites;
 
     public GestorTiquetes(int cajasNormales, int cajaPreferencial, int cajaTramiteRapido) {
-        this.colaPreferencial = new PriorityQueue<>();
-        this.colaUnTramite = new PriorityQueue<>();
-        this.colaDosOMasTramites = new PriorityQueue<>();
+        this.colaPreferencial = new PriorityQueue<>((t1, t2) -> t1.getHoraCreacion().compareTo(t2.getHoraCreacion()));
+        this.colaUnTramite = new PriorityQueue<>((t1, t2) -> t1.getHoraCreacion().compareTo(t2.getHoraCreacion()));
+        this.colaDosOMasTramites = new PriorityQueue<>((t1, t2) -> t1.getHoraCreacion().compareTo(t2.getHoraCreacion()));
     }
 
     public void crearTiquete(String nombre, int id, int edad, String tramite, char tipo) {
@@ -37,74 +33,24 @@ public class GestorTiquetes {
                 colaDosOMasTramites.offer(tiquete);
                 break;
             default:
-                JOptionPane.showMessageDialog(null,"Tipo de tiquete inválido: " + tipo);
+                JOptionPane.showMessageDialog(null, "Tipo de tiquete inválido: " + tipo);
                 break;
         }
 
-        JOptionPane.showMessageDialog(null,"Se ha creado el tiquete para " + nombre);
         imprimirDetalleAtencion(tiquete);
-    }
-    
-    private void asignarTiqueteACaja(Tiquete tiquete, char tipo) {
-        tiquete.setHoraAtencion(LocalTime.now());
-        registrarEnReporte(tiquete);
-        JOptionPane.showMessageDialog(null,
-                "Tiquete atendido inmediatamente en la caja " + obtenerNumeroCaja(tipo),
-                "Atención de Tiquete",
-                JOptionPane.INFORMATION_MESSAGE);
-        imprimirDetalleAtencion(tiquete);
-    }
-    
-    public void atenderTiquete(char tipo) {
-        PriorityQueue<Tiquete> cola = obtenerColaSegunTipo(tipo);
-        if (cola != null) {
-            if (!cola.isEmpty()) {
-                Tiquete tiquete = cola.poll(); // Atender el primer tiquete en la cola
-                tiquete.setHoraAtencion(LocalTime.now());
-                registrarEnReporte(tiquete);
-                JOptionPane.showMessageDialog(null,
-                        "Tiquete atendido en la caja " + obtenerNumeroCaja(tipo),
-                        "Atención de Tiquete",
-                        JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(null,
-                        "No hay tiquetes para atender en la caja " + obtenerNumeroCaja(tipo),
-                        "Atención de Tiquete",
-                        JOptionPane.INFORMATION_MESSAGE);
-            }
-        } else {
-            JOptionPane.showMessageDialog(null,
-                    "Tipo de tiquete no válido: " + tipo,
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
     }
 
-    private void registrarEnReporte(Tiquete tiquete) {
-        try (FileWriter fw = new FileWriter("reportes.txt", true); PrintWriter pw = new PrintWriter(fw)) {
-            pw.println("Tiquete Atendido:");
-            pw.println(tiquete.toString());
-            pw.println("Hora de atención: " + tiquete.getHoraAtencion());
-            pw.println("--------------------------");
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null,
-                    "Error al guardar el reporte: " + e.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }
-///////////////DA INFORMACION ///////////////////////
-    public void imprimirDetalleAtencion(Tiquete tiquete) {
+    private void imprimirDetalleAtencion(Tiquete tiquete) {
         PriorityQueue<Tiquete> cola = obtenerColaSegunTipo(tiquete.getTipo());
-        int personasDelante = cola.size() - 1; 
+        int personasDelante = cola.size() - 1;
 
         if (personasDelante > 0) {
-            JOptionPane.showMessageDialog(null,"Está en la cola de espera con " + personasDelante + " persona(s) delante.");
+            JOptionPane.showMessageDialog(null, "Está en la cola de espera con " + personasDelante + " persona(s) delante.");
         } else {
-            JOptionPane.showMessageDialog(null,"¡Es su turno de atención!");
+            JOptionPane.showMessageDialog(null, "¡Es su turno de atención!");
         }
 
-        JOptionPane.showMessageDialog(null,"Debe ser atendido en la caja " + obtenerNumeroCaja(tiquete.getTipo()));
+        JOptionPane.showMessageDialog(null, "Debe ser atendido en la caja " + obtenerNumeroCaja(tiquete.getTipo()));
     }
 
     private PriorityQueue<Tiquete> obtenerColaSegunTipo(char tipo) {
@@ -123,29 +69,70 @@ public class GestorTiquetes {
     private int obtenerNumeroCaja(char tipo) {
         switch (tipo) {
             case 'P':
-                return 1; // Ejemplo: Caja 1 para preferencial
+                return 1;
             case 'A':
-                return 2; // Ejemplo: Caja 2 para un solo trámite
+                return 2;
             case 'B':
-                return 3; // Ejemplo: Caja 3 para dos o más trámites
+                return 3;
             default:
-                return -1; // Caja no definida
+                return -1;
+        }
+    }
+
+
+
+    public void reasignarTiquete(int id) {
+        Tiquete tiqueteReasignado = null;
+        
+        for (Tiquete t : colaPreferencial) {
+            if (t.getId() == id) {
+                tiqueteReasignado = t;
+                colaPreferencial.remove(t);
+                break;
+            }
+        }
+
+        if (tiqueteReasignado == null) {
+            for (Tiquete t : colaUnTramite) {
+                if (t.getId() == id) {
+                    tiqueteReasignado = t;
+                    colaUnTramite.remove(t);
+                    break;
+                }
+            }
+        }
+
+        if (tiqueteReasignado == null) {
+            for (Tiquete t : colaDosOMasTramites) {
+                if (t.getId() == id) {
+                    tiqueteReasignado = t;
+                    colaDosOMasTramites.remove(t);
+                    break;
+                }
+            }
+        }
+
+        if (tiqueteReasignado != null) {
+            JOptionPane.showMessageDialog(null, "Tiquete con ID " + id + " ha sido reasignado.");
+            crearTiquete(tiqueteReasignado.getNombre(), tiqueteReasignado.getId(), tiqueteReasignado.getEdad(), tiqueteReasignado.getTramite(), tiqueteReasignado.getTipo());
+        } else {
+            JOptionPane.showMessageDialog(null, "Tiquete con ID " + id + " no encontrado.");
         }
     }
 
     public void mostrarEstadoColas() {
-        JOptionPane.showMessageDialog(null,"Estado de las colas:");
-       JOptionPane.showMessageDialog(null,"Cola Preferencial:");
+ JOptionPane.showMessageDialog(null, "Estado de las colas:");
+        JOptionPane.showMessageDialog(null, "Cola Preferencial:");
         for (Tiquete t : colaPreferencial) {
-            JOptionPane.showMessageDialog(null,t.toString());
+            JOptionPane.showMessageDialog(null, t.toString() + " - Creación: " + t.getHoraCreacion() + ", Atención: " + t.getHoraAtencion());
         }
-        JOptionPane.showMessageDialog(null,"Cola Un Trámite:");
+        JOptionPane.showMessageDialog(null, "Cola Un Trámite:");
         for (Tiquete t : colaUnTramite) {
-            JOptionPane.showMessageDialog(null,t.toString());
+            JOptionPane.showMessageDialog(null, t.toString() + " - Creación: " + t.getHoraCreacion() + ", Atención: " + t.getHoraAtencion());
         }
-        JOptionPane.showMessageDialog(null,"Cola Dos o Más Trámites:");
+        JOptionPane.showMessageDialog(null, "Cola Dos o Más Trámites:");
         for (Tiquete t : colaDosOMasTramites) {
-            JOptionPane.showMessageDialog(null,t.toString());
-        }
+            JOptionPane.showMessageDialog(null, t.toString() + " - Creación: " + t.getHoraCreacion() + ", Atención: " + t.getHoraAtencion());
+    }
     }
 }

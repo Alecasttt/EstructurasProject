@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package proyecto;
 
 import java.util.PriorityQueue;
@@ -13,9 +9,9 @@ public class ColaPrioridad {
     private PriorityQueue<Tiquete> colaDosOMasTramites;
 
     public ColaPrioridad() {
-        this.colaPreferencial = new PriorityQueue<>();
-        this.colaUnTramite = new PriorityQueue<>();
-        this.colaDosOMasTramites = new PriorityQueue<>();
+        this.colaPreferencial = new PriorityQueue<>((t1, t2) -> t1.getHoraCreacion().compareTo(t2.getHoraCreacion()));
+        this.colaUnTramite = new PriorityQueue<>((t1, t2) -> t1.getHoraCreacion().compareTo(t2.getHoraCreacion()));
+        this.colaDosOMasTramites = new PriorityQueue<>((t1, t2) -> t1.getHoraCreacion().compareTo(t2.getHoraCreacion()));
     }
 
     public void crearTiquete(String nombre, int id, int edad, String tramite, char tipo) {
@@ -42,7 +38,7 @@ public class ColaPrioridad {
 
     public void imprimirDetalleAtencion(Tiquete tiquete) {
         PriorityQueue<Tiquete> cola = obtenerColaSegunTipo(tiquete.getTipo());
-        int personasDelante = cola.size() - 1; // Excluye al propio tiquete
+        int personasDelante = cola.size() - 1;
 
         if (personasDelante > 0) {
             System.out.println("Está en la cola de espera con " + personasDelante + " persona(s) delante.");
@@ -76,6 +72,22 @@ public class ColaPrioridad {
                 return 3; // Ejemplo: Caja 3 para dos o más trámites
             default:
                 return -1; // Caja no definida
+        }
+    }
+
+    public void mostrarEstadoColas() {
+        System.out.println("Estado de las colas:");
+        System.out.println("Cola Preferencial:");
+        for (Tiquete t : colaPreferencial) {
+            System.out.println(t.toString());
+        }
+        System.out.println("Cola Un Trámite:");
+        for (Tiquete t : colaUnTramite) {
+            System.out.println(t.toString());
+        }
+        System.out.println("Cola Dos o Más Trámites:");
+        for (Tiquete t : colaDosOMasTramites) {
+            System.out.println(t.toString());
         }
     }
 }

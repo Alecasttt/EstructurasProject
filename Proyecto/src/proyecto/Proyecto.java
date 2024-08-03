@@ -14,8 +14,7 @@ public class Proyecto {
 
         while (!salir) {
             try {
-                // Menú de opciones con botones
-                String[] opciones = {"Configuración inicial", "Crear tiquete", "Mostrar estado de colas", "Salir"};
+                String[] opciones = {"Configuración inicial", "Crear tiquete", "Mostrar estado de colas", "Reasignar tiquete", "Salir"};
                 int opcion = JOptionPane.showOptionDialog(
                         null,
                         "Selecciona una opción:",
@@ -38,6 +37,9 @@ public class Proyecto {
                         mostrarEstadoColas();
                         break;
                     case 3:
+                        reasignarTiquete();
+                        break;
+                    case 4:
                         salir = true;
                         break;
                     default:
@@ -87,6 +89,18 @@ public class Proyecto {
     private static void mostrarEstadoColas() {
         if (manejoArchivo.archivoExiste()) {
             gestorTiquetes.mostrarEstadoColas();
+        } else {
+            JOptionPane.showMessageDialog(null, "Primero debe realizar la configuración inicial.");
+        }
+    }
+
+
+
+    private static void reasignarTiquete() {
+        if (manejoArchivo.archivoExiste()) {
+            String idStr = JOptionPane.showInputDialog("Ingrese el ID del cliente para reasignar:");
+            int id = Integer.parseInt(idStr);
+            gestorTiquetes.reasignarTiquete(id);
         } else {
             JOptionPane.showMessageDialog(null, "Primero debe realizar la configuración inicial.");
         }
